@@ -2,6 +2,7 @@
 
 require 'HTTParty'
 require 'Nokogiri'
+require 'json'
 
 # Scraper class to provide webscraping capabilities
 class Scraper
@@ -13,22 +14,34 @@ class Scraper
     @parse_data ||= Nokogiri::HTML(raw_data)
   end
 
-  def get_incident_data
+  def scrape_incident_data
     parse_data.css('tbody').css('tr').children.map { |td| td.text }
   end
 
+  # create new instance of scraper
   scraper = Scraper.new
-  all_incident_info = scraper.get_incident_data
+  # scrape and place response into an array
+  all_incident_info = scraper.scrape_incident_data
   incident_array = []
-  while all_incident_info.size > 0
+  # slice off 9 indexes of all_incident_info at a time (equates to one row of
+  # information on the scraped site)
+  while all_incident_info.empty? == false
     incident = all_incident_info.slice!(0,8)
+    # remove empty index from the end of each selection
     incident.pop
+    # add the selection to the incident array
     incident_array.push(incident)
   end
-  p incident_array
-  # .join(' ').split('  ')
-  # (0...all_inciden t_info.size).each do |index|
-  #   puts "- - - index #{index + 1} - - -"
-  #   puts "Name: #{all_incident_info[index]}"
-  # end
+  # for each index of the incident_array create a new has with it's vales and
+  # print that to the console
+  (0...incident_array.size).each do |index|
+    puts incident_hash = {
+      'date' => incident_array[index][0],
+      'state' => incident_array[index][1],
+      'city' => incident_array[index][2],
+      'street' => incident_array[index][3],
+      'number_killed' => incident_array[index][4],
+      'number_injured' => incident_array[index][5]
+    }
+  end
 end
