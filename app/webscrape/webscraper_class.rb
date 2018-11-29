@@ -13,20 +13,22 @@ class Scraper
     @parse_data ||= Nokogiri::HTML(raw_data)
   end
 
-  def get_date
-    parse_data.css('tbody').css('tr').map { |tb| tb.text }
-  end
-
-  def put_dates
-    put
+  def get_incident_data
+    parse_data.css('tbody').css('tr').children.map { |td| td.text }
   end
 
   scraper = Scraper.new
-  dates = scraper.get_date
-  p dates
-  (0...dates.size).each do |index|
-    puts "- - - index #{index + 1} - - -"
-    puts "Name: #{dates[index]}"
-    puts "foo!"
+  all_incident_info = scraper.get_incident_data
+  incident_array = []
+  while all_incident_info.size > 0
+    incident = all_incident_info.slice!(0,8)
+    incident.pop
+    incident_array.push(incident)
   end
+  p incident_array
+  # .join(' ').split('  ')
+  # (0...all_inciden t_info.size).each do |index|
+  #   puts "- - - index #{index + 1} - - -"
+  #   puts "Name: #{all_incident_info[index]}"
+  # end
 end
